@@ -195,9 +195,9 @@
                 }
             }
         },
-        "\/category": {
+        "\/categories": {
             "get": {
-                "operationId": "category.index",
+                "operationId": "categories.index",
                 "summary": "Display a listing of the resource",
                 "tags": [
                     "Category"
@@ -219,7 +219,7 @@
                 }
             },
             "post": {
-                "operationId": "category.store",
+                "operationId": "categories.store",
                 "summary": "Store a newly created resource in storage",
                 "tags": [
                     "Category"
@@ -301,9 +301,9 @@
                 }
             }
         },
-        "\/category\/{id}": {
+        "\/categories\/{id}": {
             "get": {
-                "operationId": "category.show",
+                "operationId": "categories.show",
                 "summary": "Display the specified resource",
                 "tags": [
                     "Category"
@@ -335,7 +335,7 @@
                 }
             },
             "put": {
-                "operationId": "category.update",
+                "operationId": "categories.update",
                 "description": "\u26a0\ufe0f Cannot generate request documentation: Undefined variable $category",
                 "summary": "Update the specified resource in storage",
                 "tags": [
@@ -374,7 +374,7 @@
                 }
             },
             "delete": {
-                "operationId": "category.destroy",
+                "operationId": "categories.destroy",
                 "summary": "Remove the specified resource from storage",
                 "tags": [
                     "Category"
@@ -526,9 +526,9 @@
                 }
             }
         },
-        "\/product": {
+        "\/products": {
             "get": {
-                "operationId": "product.index",
+                "operationId": "products.index",
                 "summary": "Display a listing of the resource",
                 "tags": [
                     "Product"
@@ -550,7 +550,7 @@
                 }
             },
             "post": {
-                "operationId": "product.store",
+                "operationId": "products.store",
                 "summary": "Store a newly created resource in storage",
                 "tags": [
                     "Product"
@@ -663,9 +663,9 @@
                 }
             }
         },
-        "\/product\/{id}": {
+        "\/products\/{id}": {
             "get": {
-                "operationId": "product.show",
+                "operationId": "products.show",
                 "summary": "Display the specified resource",
                 "tags": [
                     "Product"
@@ -697,7 +697,7 @@
                 }
             },
             "put": {
-                "operationId": "product.update",
+                "operationId": "products.update",
                 "description": "\u26a0\ufe0f Cannot generate request documentation: Undefined variable $product",
                 "summary": "Update the specified resource in storage",
                 "tags": [
@@ -736,7 +736,7 @@
                 }
             },
             "delete": {
-                "operationId": "product.destroy",
+                "operationId": "products.destroy",
                 "summary": "Remove the specified resource from storage",
                 "tags": [
                     "Product"
