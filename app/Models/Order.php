@@ -10,14 +10,12 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id',
         'order_date',
-        'quantity',
-        'price_at_moment',
+        'total'
     ];
 
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsToMany(Product::class)->withPivot('units')->withTimestamps();
     }
 }

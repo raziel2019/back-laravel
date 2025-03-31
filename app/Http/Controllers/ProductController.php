@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductTariff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -12,7 +14,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('categories')->get();
+        $products = Product::with(['categories', 'tariffs'])->get();
         return response()->json($products, 200);
     }
 
@@ -25,25 +27,42 @@ class ProductController extends Controller
             'code'         => 'required|unique:products,code',
             'name'         => 'required|string|max:255',
             'description'  => 'nullable|string',
-            'photo'        => 'nullable', 
-            'category_ids' => 'array', 
+            'photo'        => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            'category_ids' => 'nullable|array',
             'category_ids.*' => 'exists:categories,id',
+            'tariffs' => 'nullable|array',
+            'tariffs.*.start_date' => 'required|date',
+            'tariffs.*.end_date'   => 'required|date|after_or_equal:tariffs.*.start_date',
+            'tariffs.*.price'      => 'required|numeric|min:0'
+
         ]);
 
-        $product = new Product();
-        $product->code        = $validatedData['code'];
-        $product->name        = $validatedData['name'];
-        $product->description = $validatedData['description'] ?? null;
-        $product->photo       = $validatedData['photo'] ?? null;
-        $product->save();
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('products', 'public');
+        }
+
+        $product = Product::create([
+            'code'        => $validatedData['code'],
+            'name'        => $validatedData['name'],
+            'description' => $validatedData['description'] ?? null,
+            'photo'       => $photoPath,
+        ]);
 
         if (isset($validatedData['category_ids'])) {
             $product->categories()->sync($validatedData['category_ids']);
         }
 
+        if (isset($validatedData['tariffs'])) {
+            foreach ($validatedData['tariffs'] as $tariffData) {
+                $tariffData['product_id'] = $product->id;
+                ProductTariff::create($tariffData);
+            }
+        }
+
         return response()->json([
             'message' => 'Producto creado correctamente',
-            'product' => $product->load('categories')
+            'product' => $product->load(['categories', 'tariffs'])
         ], 201);
 
     }
@@ -53,7 +72,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('categories')->findOrFail($id);
+        $product = Product::with(['categories', 'tariffs'])->findOrFail($id);
         return response()->json($product, 200);
     }
 
@@ -65,31 +84,49 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-       $product = Product::findOrFail($id);
+        $product = Product::findOrFail($id);
 
-       $validatedData = $request->validate([
-           'code'         => 'required|string|max:255|unique:products,code,'.$id,
-           'name'         => 'required|string|max:255',
-           'description'  => 'nullable|string',
-           'photo'        => 'nullable',
-           'category_ids' => 'array',
-           'category_ids.*' => 'exists:categories,id',
-       ]);
+        $validatedData = $request->validate([
+            'code'         => 'required|unique:products,code,'.$product->id,
+            'name'         => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'photo'        => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'tariffs'      => 'nullable|array',
+            'tariffs.*.start_date' => 'required|date',
+            'tariffs.*.end_date'   => 'required|date|after_or_equal:tariffs.*.start_date',
+            'tariffs.*.price'      => 'required|numeric|min:0'
+        ]);
 
-       $product->code        = $validatedData['code'];
-       $product->name        = $validatedData['name'];
-       $product->description = $validatedData['description'] ?? $product->description;
-       $product->photo       = $validatedData['photo'] ?? $product->photo;
-       $product->save();
+        if ($request->hasFile('photo')) {
+            Storage::disk('public')->delete($product->photo);
+            $photoPath = $request->file('photo')->store('products', 'public');
+            $product->photo = $photoPath;
+        }
 
-       if (isset($validatedData['category_ids'])) {
-           $product->categories()->sync($validatedData['category_ids']);
-       }
+        $product->update([
+            'code'        => $validatedData['code'],
+            'name'        => $validatedData['name'],
+            'description' => $validatedData['description'] ?? $product->description,
+        ]);
 
-       return response()->json([
-           'message' => 'Producto actualizado correctamente',
-           'product' => $product->load('categories')
-       ], 200);
+        if (isset($validatedData['category_ids'])) {
+            $product->categories()->sync($validatedData['category_ids']);
+        }
+
+        if (isset($validatedData['tariffs'])) {
+            $product->tariffs()->delete();
+            foreach ($validatedData['tariffs'] as $tariffData) {
+                $tariffData['product_id'] = $product->id;
+                ProductTariff::create($tariffData);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Producto actualizado correctamente',
+            'product' => $product->load(['categories', 'tariffs'])
+        ], 200);
 
     }
 
@@ -99,6 +136,9 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         $product = Product::findOrFail($id);
+        if(!empty($product->photo)){
+            Storage::disk('public')->delete($product->photo);
+        }
         $product->delete();
 
         return response()->json([

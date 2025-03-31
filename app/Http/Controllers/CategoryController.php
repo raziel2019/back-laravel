@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -12,7 +13,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::whereNull('parent_id')
+        ->with('children.children.children')
+        ->get();
         return response()->json($categories, 200);
     
     }
@@ -26,11 +29,22 @@ class CategoryController extends Controller
             'code'        => 'required|string|unique:categories,code',
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'photo'       => 'nullable|string',
+            'photo'       => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
             'parent_id'   => 'nullable|exists:categories,id'
         ]);
 
-        $category = Category::create($validatedData);
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('categories', 'public');
+        }
+
+        $category = new Category();
+        $category->code        = $validatedData['code'];
+        $category->name        = $validatedData['name'];
+        $category->description = $validatedData['description'] ?? null;
+        $category->parent_id   = $validatedData['parent_id'] ?? null;
+        $category->photo       = $photoPath; 
+        $category->save();
 
         return response()->json([
             'message'  => 'Categoría creada correctamente',
@@ -42,28 +56,41 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show($id)
     {
+        $category = Category::findOrFail($id);
         return response()->json($category, 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
+
+        $category = Category::findOrFail($id);
+
         $validatedData = $request->validate([
-            'code'        => 'required|string|unique:categories,code,' . $category->id,
-            'name'        => 'required|string|max:255',
+            'code'        => 'nullable|string|unique:categories,code,' . $category->id,
+            'name'        => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'photo'       => 'nullable|string',
-            'parent_id'   => 'nullable|exists:categories,id'
+            'photo'       => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            'parent_id'   => 'nullable|exists:categories,id',
         ]);
 
-        $category->update($validatedData);
-
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('categories', 'public');
+            $category->photo = $photoPath;
+        }
+ 
+        $category->code        = $validatedData['code'];
+        $category->name        = $validatedData['name'];
+        $category->description = $validatedData['description'] ?? $category->description;
+        $category->parent_id   = $validatedData['parent_id'] ?? $category->parent_id;
+        $category->save();
+ 
         return response()->json([
-            'message'  => 'Categoría actualizada correctamente',
+            'message' => 'Categoria actualizado correctamente',
             'category' => $category
         ], 200);
     }
@@ -71,8 +98,12 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy(string $id)
     {
+        $category = Category::findOrFail($id);
+        if(!empty($category->photo)){
+            Storage::disk('public')->delete($category->photo);
+        }
         $category->delete();
 
         return response()->json([

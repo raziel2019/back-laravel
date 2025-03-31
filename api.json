@@ -195,7 +195,7 @@
                 }
             }
         },
-        "\/categories": {
+        "\/category": {
             "get": {
                 "operationId": "category.index",
                 "summary": "Display a listing of the resource",
@@ -217,9 +217,316 @@
                         "$ref": "#\/components\/responses\/AuthenticationException"
                     }
                 }
+            },
+            "post": {
+                "operationId": "category.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Category"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart\/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "photo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "binary",
+                                        "contentMediaType": "application\/octet-stream",
+                                        "maxLength": 2048
+                                    },
+                                    "parent_id": {
+                                        "type": [
+                                            "integer",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "code",
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categor\u00eda creada correctamente"
+                                        },
+                                        "category": {
+                                            "$ref": "#\/components\/schemas\/Category"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "category"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
             }
         },
-        "\/products": {
+        "\/category\/{id}": {
+            "get": {
+                "operationId": "category.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Category"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "category.update",
+                "description": "\u26a0\ufe0f Cannot generate request documentation: Undefined variable $category",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Category"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categoria actualizado correctamente"
+                                        },
+                                        "category": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "category"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "category.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Category"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categor\u00eda eliminada correctamente"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "\/orders": {
+            "get": {
+                "operationId": "order.index",
+                "tags": [
+                    "Order"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "order.store",
+                "tags": [
+                    "Order"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "order_date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "units": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    },
+                                    "total": {
+                                        "type": "number",
+                                        "minimum": 0
+                                    },
+                                    "products": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "order_date",
+                                    "units",
+                                    "total",
+                                    "products"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pedido creado correctamente"
+                                        },
+                                        "order": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "order"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "errors"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "\/product": {
             "get": {
                 "operationId": "product.index",
                 "summary": "Display a listing of the resource",
@@ -251,7 +558,7 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application\/json": {
+                        "multipart\/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -272,12 +579,46 @@
                                         "type": [
                                             "string",
                                             "null"
-                                        ]
+                                        ],
+                                        "format": "binary",
+                                        "contentMediaType": "application\/octet-stream",
+                                        "maxLength": 2048
                                     },
                                     "category_ids": {
-                                        "type": "array",
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
                                         "items": {
                                             "type": "integer"
+                                        }
+                                    },
+                                    "tariffs": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "start_date": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "end_date": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "required": [
+                                                "start_date",
+                                                "end_date",
+                                                "price"
+                                            ]
                                         }
                                     }
                                 },
@@ -322,7 +663,7 @@
                 }
             }
         },
-        "\/products\/{id}": {
+        "\/product\/{id}": {
             "get": {
                 "operationId": "product.show",
                 "summary": "Display the specified resource",
@@ -357,62 +698,11 @@
             },
             "put": {
                 "operationId": "product.update",
+                "description": "\u26a0\ufe0f Cannot generate request documentation: Undefined variable $product",
                 "summary": "Update the specified resource in storage",
                 "tags": [
                     "Product"
                 ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application\/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "code": {
-                                        "type": "string",
-                                        "maxLength": 255
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "maxLength": 255
-                                    },
-                                    "description": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "photo": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "category_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "required": [
-                                    "code",
-                                    "name"
-                                ]
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "",
@@ -444,9 +734,7 @@
                         "$ref": "#\/components\/responses\/AuthenticationException"
                     }
                 }
-            }
-        },
-        "\/Products\/{id}": {
+            },
             "delete": {
                 "operationId": "product.destroy",
                 "summary": "Remove the specified resource from storage",
@@ -491,6 +779,65 @@
         }
     },
     "components": {
+        "schemas": {
+            "Category": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "photo": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "parent_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "description",
+                    "photo",
+                    "parent_id",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "Category"
+            }
+        },
         "responses": {
             "ValidationException": {
                 "description": "Validation error",

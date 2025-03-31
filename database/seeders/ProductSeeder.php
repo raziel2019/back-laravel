@@ -15,7 +15,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        Product::factory(10)->create()->each(function($product) {
+        Product::factory(3)->create()->each(function($product) {
 
             $categories = Category::inRandomOrder()->take(rand(1,3))->pluck('id');
             $product->categories()->attach($categories);
